@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Jan Wedekind">
+  <meta name="dcterms.date" content="2018-11-06">
+  <title>AIscm – Guile extension for numerical arrays and tensors</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="buttondown.css">
+</head>
+<body>
+<h1 id="array-convolutions">Array convolutions</h1>
+<h2 id="one-dimensional-convolutions">One-dimensional convolutions</h2>
+<p>One dimensional signals such as audio samples can be filtered using a 1D convolution. Convolution can also be performed using composite values such as complex numbers.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm core))
+(convolve (arr <span class="dv">0</span> <span class="dv">0</span> <span class="dv">2</span> <span class="dv">2</span> <span class="dv">2</span> <span class="dv">2</span> <span class="dv">0</span> <span class="dv">0</span>) (arr <span class="dv">1</span> <span class="dv">0</span> -<span class="dv">1</span>))
+<span class="co">;#&lt;sequence&lt;int&lt;16,signed&gt;&gt;&gt;:</span>
+<span class="co">;(0 2 2 0 0 -2 -2 0)</span>
+(convolve (arr <span class="dv">0</span> <span class="dv">0</span> <span class="dv">1</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">2</span> <span class="dv">0</span>) (arr +<span class="dv">1</span> +i -<span class="dv">1</span> -i))
+<span class="co">;#&lt;sequence&lt;complex&lt;int&lt;16,signed&gt;&gt;&gt;&gt;:</span>
+<span class="co">;(1 0.0+1.0i -1 0.0-1.0i 0 0 2 0.0+2.0i -2 0.0-2.0i)</span></code></pre></div>
+<h2 id="two-dimensional-convolutions">Two-dimensional convolutions</h2>
+<p>Convolution can also be performed on 2D data.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm core))
+(convolve (arr (<span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span>) (<span class="dv">0</span> <span class="dv">0</span> <span class="dv">1</span> <span class="dv">0</span> <span class="dv">0</span>) (<span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span>)) (arr (-<span class="dv">1</span> <span class="dv">0</span> <span class="dv">1</span>) (-<span class="dv">2</span> <span class="dv">0</span> <span class="dv">2</span>) (-<span class="dv">1</span> <span class="dv">0</span> <span class="dv">1</span>)))
+<span class="co">;#&lt;sequence&lt;sequence&lt;int&lt;16,signed&gt;&gt;&gt;&gt;:</span>
+<span class="co">;((0 -1 0 1 0)</span>
+<span class="co">; (0 -2 0 2 0)</span>
+<span class="co">; (0 -1 0 1 0))</span></code></pre></div>
+<h2 id="image-processing">Image processing</h2>
+<p>Here is the test input image for comparison.</p>
+<div class="figure">
+<img src="star-ferry.jpg" title="Test input image" alt="star-ferry.jpg" />
+<p class="caption">star-ferry.jpg</p>
+</div>
+<h3 id="box-filter">Box filter</h3>
+<p>A simple filter for blurring an image is the box filter. Note that convolution is performed on a colour image.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm magick) (aiscm core))
+(<span class="kw">define</span><span class="fu"> </span>(box-filter img) (<span class="kw">/</span> (convolve img (fill &lt;sint&gt; &#39;(<span class="dv">5</span> <span class="dv">5</span>) <span class="dv">1</span>)) <span class="dv">25</span>))
+(write-image (to-type (rgb &lt;ubyte&gt;) (box-filter (read-image <span class="st">&quot;star-ferry.jpg&quot;</span>))) <span class="st">&quot;box-filter.jpg&quot;</span>)</code></pre></div>
+<div class="figure">
+<img src="box-filter.jpg" title="Box blur filter" alt="box-filter.jpg" />
+<p class="caption">box-filter.jpg</p>
+</div>
+<h3 id="sharpen">Sharpen</h3>
+<p>Image sharpening increases the difference between neighbouring pixels.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm magick) (aiscm core))
+(<span class="kw">define</span><span class="fu"> </span>(sharpen img) (major <span class="dv">0</span> (minor <span class="dv">255</span> (convolve img (arr (<span class="dv">0</span> -<span class="dv">1</span> <span class="dv">0</span>) (-<span class="dv">1</span> <span class="dv">5</span> -<span class="dv">1</span>) (<span class="dv">0</span> -<span class="dv">1</span> <span class="dv">0</span>))))))
+(write-image (to-type (rgb &lt;ubyte&gt;) (sharpen (read-image <span class="st">&quot;star-ferry.jpg&quot;</span>))) <span class="st">&quot;sharpen.jpg&quot;</span>)</code></pre></div>
+<div class="figure">
+<img src="sharpen.jpg" title="Sharpen" alt="sharpen.jpg" />
+<p class="caption">sharpen.jpg</p>
+</div>
+<h3 id="edge-detection">Edge detection</h3>
+<p>Convolutions can be used for edge detection.</p>
+<p>Here is an implementation of the Roberts cross edge detector.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm magick) (aiscm image) (aiscm core))
+(<span class="kw">define</span><span class="fu"> </span>(to-gray img) (to-array (convert-image (to-image img) &#39;GRAY)))
+(<span class="kw">define</span><span class="fu"> </span>(norm x y) (<span class="kw">/</span> (<span class="kw">+</span> (<span class="kw">abs</span> x) (<span class="kw">abs</span> y)) <span class="dv">2</span>))
+(<span class="kw">define</span><span class="fu"> </span>(roberts-cross img) (<span class="kw">/</span> (norm (convolve img (arr (+<span class="dv">1</span> <span class="dv">0</span>) ( <span class="dv">0</span> -<span class="dv">1</span>))) (convolve img (arr ( <span class="dv">0</span> +<span class="dv">1</span>) (-<span class="dv">1</span> <span class="dv">0</span>)))) <span class="dv">2</span>))
+(write-image (to-type &lt;ubyte&gt; (roberts-cross (to-gray (read-image <span class="st">&quot;star-ferry.jpg&quot;</span>)))) <span class="st">&quot;roberts-cross.jpg&quot;</span>)</code></pre></div>
+<div class="figure">
+<img src="roberts-cross.jpg" title="Roberts cross edge detector" alt="roberts-cross.jpg" />
+<p class="caption">roberts-cross.jpg</p>
+</div>
+<p>Another popular edge detector is the Sobel operator.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm magick) (aiscm image) (aiscm core))
+(<span class="kw">define</span><span class="fu"> </span>(to-gray img) (to-array (convert-image (to-image img) &#39;GRAY)))
+(<span class="kw">define</span><span class="fu"> </span>(norm x y) (<span class="kw">/</span> (<span class="kw">+</span> (<span class="kw">abs</span> x) (<span class="kw">abs</span> y)) <span class="dv">8</span>))
+(<span class="kw">define</span><span class="fu"> </span>(sobel img) (norm (convolve img (arr (<span class="dv">1</span> <span class="dv">0</span> -<span class="dv">1</span>) (<span class="dv">2</span> <span class="dv">0</span> -<span class="dv">2</span>) ( <span class="dv">1</span> <span class="dv">0</span> -<span class="dv">1</span>))) (convolve img (arr (<span class="dv">1</span> <span class="dv">2</span> <span class="dv">1</span>) (<span class="dv">0</span> <span class="dv">0</span> <span class="dv">0</span>) (-<span class="dv">1</span> -<span class="dv">2</span> -<span class="dv">1</span>)))))
+(write-image (to-type &lt;ubyte&gt; (sobel (to-gray (read-image <span class="st">&quot;star-ferry.jpg&quot;</span>)))) <span class="st">&quot;sobel.jpg&quot;</span>)</code></pre></div>
+<div class="figure">
+<img src="sobel.jpg" title="Sobel edges" alt="sobel.jpg" />
+<p class="caption">sobel.jpg</p>
+</div>
+<h2 id="conways-game-of-life">Conway's Game of Life</h2>
+<p>Finally here is an implementation of Conway's Game of Life.</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm xorg) (aiscm core))
+(<span class="kw">define</span><span class="fu"> img </span>(fill &lt;bool&gt; &#39;(<span class="dv">60</span> <span class="dv">100</span>) <span class="dv">#f</span>))
+(set img &#39;(<span class="dv">0</span> . <span class="dv">3</span>) &#39;(<span class="dv">0</span> . <span class="dv">3</span>) (arr (<span class="dv">#f</span> <span class="dv">#t</span> <span class="dv">#f</span>) (<span class="dv">#f</span> <span class="dv">#f</span> <span class="dv">#t</span>) (<span class="dv">#t</span> <span class="dv">#t</span> <span class="dv">#t</span>)))
+(set img &#39;(<span class="dv">4</span> . <span class="dv">7</span>) &#39;(<span class="dv">50</span> . <span class="dv">53</span>) (arr (<span class="dv">#t</span> <span class="dv">#t</span> <span class="dv">#t</span>) (<span class="dv">#f</span> <span class="dv">#f</span> <span class="dv">#t</span>) (<span class="dv">#f</span> <span class="dv">#t</span> <span class="dv">#f</span>)))
+(set img &#39;(<span class="dv">27</span> . <span class="dv">30</span>) <span class="dv">25</span> <span class="dv">#t</span>)
+(show
+  (<span class="kw">lambda</span> (dsp)
+    (<span class="kw">let</span> [(neighbours (convolve (to-type &lt;ubyte&gt; img) (arr (<span class="dv">1</span> <span class="dv">1</span> <span class="dv">1</span>) (<span class="dv">1</span> <span class="dv">0</span> <span class="dv">1</span>) (<span class="dv">1</span> <span class="dv">1</span> <span class="dv">1</span>))))]
+      (set! img (&amp;&amp; (ge neighbours (where img <span class="dv">2</span> <span class="dv">3</span>)) (le neighbours <span class="dv">3</span>)) )
+      (where img <span class="dv">255</span> <span class="dv">0</span>)))
+  #:fullscreen <span class="dv">#t</span> #:io IO-OPENGL)</code></pre></div>
+<h2 id="erosiondilation">Erosion/Dilation</h2>
+<h3 id="erosion">Erosion</h3>
+<p>Erosion is a local operator taking the local minimum of an image:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm core) (aiscm magick))
+(write-image (erode (read-image <span class="st">&quot;star-ferry.jpg&quot;</span>) <span class="dv">5</span>) <span class="st">&quot;eroded.jpg&quot;</span>)</code></pre></div>
+<div class="figure">
+<img src="eroded.jpg" alt="eroded.jpg" />
+<p class="caption">eroded.jpg</p>
+</div>
+<h3 id="dilation">Dilation</h3>
+<p>In a similar fashion dilation is the local maximum of an image:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (aiscm core) (aiscm magick))
+(write-image (dilate (read-image <span class="st">&quot;star-ferry.jpg&quot;</span>) <span class="dv">5</span>) <span class="st">&quot;dilated.jpg&quot;</span>)</code></pre></div>
+<div class="figure">
+<img src="dilated.jpg" alt="dilated.jpg" />
+<p class="caption">dilated.jpg</p>
+</div>
+<hr/><em><a href="http://wedesoft.github.io/aiscm/">AIscm documentation</a> generated by Pandoc 2018-11-06</em>
+</body>
+</html>

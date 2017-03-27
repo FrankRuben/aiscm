@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Jan Wedekind">
+  <meta name="dcterms.date" content="2018-11-06">
+  <title>AIscm – Guile extension for numerical arrays and tensors</title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+  </style>
+  <link rel="stylesheet" href="buttondown.css">
+</head>
+<body>
+<h1 id="llvm-jit-compiler">LLVM JIT compiler</h1>
+<p>The LLVM JIT compiler facilitates performant implementations of numerical methods. The following example shows a function for negating integers implemented using LLVM. The function then is used to negate the number <em>42</em>.</p>
+<p>Setting the environment variable <em>DEBUG</em> to <em>YES</em> will cause the JIT compiler to display the LLVM intermediate code.</p>
+<h2 id="compilation">Compilation</h2>
+<p>The <em>jit</em> function provides an interface to LLVM. The following example defines a function for adding two integers:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (oop goops) (aiscm core))
+(<span class="kw">define</span><span class="fu"> f </span>(jit (<span class="kw">list</span> &lt;int&gt; &lt;int&gt;) (<span class="kw">lambda</span> (x y) (<span class="kw">+</span> x y))))
+(f <span class="dv">12</span> <span class="dv">34</span>)
+<span class="co">; 46 </span></code></pre></div>
+<p>The <em>jit</em> function also instantiates loops for array processing. For example:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (oop goops) (aiscm core))
+(<span class="kw">define</span><span class="fu"> f </span>(jit (<span class="kw">list</span> (rgb &lt;int&gt;) (llvmarray &lt;int&gt; <span class="dv">1</span>)) <span class="kw">+</span>))
+(f (rgb <span class="dv">1</span> <span class="dv">2</span> <span class="dv">3</span>) (arr &lt;int&gt; <span class="dv">4</span> <span class="dv">5</span> <span class="dv">6</span>))
+<span class="co">; #&lt;multiarray&lt;int&lt;32,signed&gt;,1&gt;&gt;:</span>
+<span class="co">; ((rgb 5 6 7) (rgb 6 7 8) (rgb 7 8 9))</span></code></pre></div>
+<h2 id="scheme-callbacks">Scheme callbacks</h2>
+<p>Operations on Scheme objects are facilitated by callbacks into the Scheme interpreter:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (oop goops) (aiscm core))
+(<span class="kw">define</span><span class="fu"> f </span>(jit (<span class="kw">list</span> &lt;int&gt; &lt;obj&gt;) <span class="kw">+</span>))
+(f <span class="dv">1</span> (<span class="kw">/</span> <span class="dv">2</span> <span class="dv">3</span>))
+<span class="co">; 5/3</span></code></pre></div>
+<p>Callbacks into Scheme are used when handling arrays of Scheme objects:</p>
+<div class="sourceCode"><pre class="sourceCode scheme"><code class="sourceCode scheme">(use-modules (oop goops) (aiscm core))
+(&lt;&lt; <span class="dv">1</span> (* <span class="dv">10</span> (arr &lt;obj&gt; <span class="dv">1</span> <span class="dv">2</span> <span class="dv">4</span> <span class="dv">8</span>)))
+<span class="co">;#&lt;multiarray&lt;obj,1&gt;&gt;:</span>
+<span class="co">;(1024 1048576 1099511627776 1208925819614629174706176)</span></code></pre></div>
+<hr/><em><a href="http://wedesoft.github.io/aiscm/">AIscm documentation</a> generated by Pandoc 2018-11-06</em>
+</body>
+</html>
